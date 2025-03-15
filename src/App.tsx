@@ -11,6 +11,7 @@ import PHP from "./pages/PHP";
 import MySQL from "./pages/MySQL";
 import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
+import FileManager from "./pages/FileManager";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/mysql" element={<MySQL />} />
           <Route path="/stats" element={<Statistics />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/files" element={<FileManager />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

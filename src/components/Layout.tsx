@@ -4,7 +4,7 @@ import { useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
   Server, Database, Code2, Home, Menu, X, 
-  BarChart3, Settings, Moon, Sun, Power
+  BarChart3, Settings, Moon, Sun, Power, FolderOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -59,6 +59,7 @@ export const Layout = ({ children }: LayoutProps) => {
     { path: "/nginx", label: "Nginx", icon: <Server className="w-5 h-5" /> },
     { path: "/php", label: "PHP", icon: <Code2 className="w-5 h-5" /> },
     { path: "/mysql", label: "MySQL", icon: <Database className="w-5 h-5" /> },
+    { path: "/files", label: "File Manager", icon: <FolderOpen className="w-5 h-5" /> },
     { path: "/stats", label: "Statistics", icon: <BarChart3 className="w-5 h-5" /> },
     { path: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" /> }
   ];
