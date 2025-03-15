@@ -81,10 +81,10 @@ const initialDatabases = [
 ];
 
 const initialUsers = [
-  { username: "admin", host: "localhost", privileges: "ALL PRIVILEGES", authentication: "Native" },
-  { username: "wordpress", host: "%", privileges: "SELECT, INSERT, UPDATE", authentication: "Native" },
-  { username: "backup", host: "localhost", privileges: "SELECT, LOCK TABLES", authentication: "Socket" },
-  { username: "read_only", host: "192.168.1.%", privileges: "SELECT", authentication: "Native" },
+  { username: "admin", host: "localhost", privileges: "ALL PRIVILEGES", authentication: "Native", database: "None" },
+  { username: "wordpress", host: "%", privileges: "SELECT, INSERT, UPDATE", authentication: "Native", database: "wordpress" },
+  { username: "backup", host: "localhost", privileges: "SELECT, LOCK TABLES", authentication: "Socket", database: "None" },
+  { username: "read_only", host: "192.168.1.%", privileges: "SELECT", authentication: "Native", database: "None" },
 ];
 
 const initialMySQLConfig = `[mysqld]
