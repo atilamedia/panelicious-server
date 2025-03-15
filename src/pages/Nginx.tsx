@@ -2,7 +2,8 @@ import { useState } from "react";
 import { 
   Server, FileCode, RefreshCcw, Save, 
   PlayCircle, StopCircle, PlusCircle, Globe,
-  Trash2, ClipboardEdit, ExternalLink
+  Trash2, ClipboardEdit, ExternalLink, 
+  Package, Download
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { Progress } from "@/components/ui/progress";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 
@@ -106,12 +108,55 @@ http {
     include /etc/nginx/sites-enabled/*;
 }`;
 
+// Mock data for Nginx modules
+const initialModules = [
+  {
+    id: 1,
+    name: "ngx_http_gzip_module",
+    description: "Compresses responses using the gzip method to reduce the size of transmitted data",
+    status: "active",
+    version: "1.22.1"
+  },
+  {
+    id: 2,
+    name: "ngx_http_ssl_module",
+    description: "Provides the necessary support for HTTPS",
+    status: "active",
+    version: "1.22.1"
+  },
+  {
+    id: 3,
+    name: "ngx_http_rewrite_module",
+    description: "Changes request URI using regular expressions",
+    status: "active",
+    version: "1.22.1"
+  },
+  {
+    id: 4,
+    name: "ngx_http_proxy_module",
+    description: "Passes requests to another server",
+    status: "active",
+    version: "1.22.1"
+  },
+  {
+    id: 5,
+    name: "ngx_http_fastcgi_module",
+    description: "Passes requests to a FastCGI server",
+    status: "inactive",
+    version: "1.22.1"
+  }
+];
+
 const Nginx = () => {
   const [nginxConfig, setNginxConfig] = useState(initialNginxConfig);
   const [virtualHosts, setVirtualHosts] = useState(initialVirtualHosts);
+  const [modules, setModules] = useState(initialModules);
   const [newDomain, setNewDomain] = useState("");
   const [newPath, setNewPath] = useState("/var/www/");
   const [serviceStatus, setServiceStatus] = useState<"active" | "inactive">("active");
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [installProgress, setInstallProgress] = useState(0);
+  const [newModuleName, setNewModuleName] = useState("");
   const { toast } = useToast();
 
   // Handler to save Nginx configuration
@@ -234,6 +279,84 @@ const Nginx = () => {
     }, 1000);
   };
 
+  // Handler to install a new module
+  const handleInstallModule = () => {
+    if (!newModuleName) {
+      toast({
+        title: "Error",
+        description: "Module name is required.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsInstalling(true);
+    
+    // Simulate installation progress
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      setInstallProgress(progress);
+      
+      if (progress >= 100) {
+        clearInterval(interval);
+        
+        // Add the new module to the list
+        const newModule = {
+          id: modules.length + 1,
+          name: newModuleName,
+          description: "Custom Nginx module",
+          status: "inactive" as const,
+          version: "1.22.1"
+        };
+        
+        setModules([...modules, newModule]);
+        setNewModuleName("");
+        setIsInstalling(false);
+        setInstallProgress(0);
+        
+        toast({
+          title: "Module Installed",
+          description: `Module ${newModuleName} has been installed successfully.`
+        });
+      }
+    }, 500);
+  };
+
+  // Handler to toggle module status
+  const toggleModuleStatus = (id: number) => {
+    setModules(modules.map(module => {
+      if (module.id === id) {
+        const newStatus = module.status === "active" ? "inactive" : "active";
+        
+        toast({
+          title: module.status === "active" ? "Disabling Module" : "Enabling Module",
+          description: `${module.name} is being ${module.status === "active" ? "disabled" : "enabled"}...`
+        });
+        
+        return { ...module, status: newStatus };
+      }
+      return module;
+    }));
+  };
+
+  // Handler to delete a module
+  const handleDeleteModule = (id: number, name: string) => {
+    toast({
+      title: "Deleting Module",
+      description: `Module ${name} is being deleted...`
+    });
+    
+    // Simulate deletion
+    setTimeout(() => {
+      setModules(modules.filter(module => module.id !== id));
+      toast({
+        title: "Module Deleted",
+        description: `Module ${name} has been deleted successfully.`
+      });
+    }, 1000);
+  };
+
   return (
     <Layout>
       {/* Header */}
@@ -315,6 +438,10 @@ const Nginx = () => {
             <TabsTrigger value="virtual-hosts" className="gap-2">
               <Globe className="w-4 h-4" />
               Virtual Hosts
+            </TabsTrigger>
+            <TabsTrigger value="modules" className="gap-2">
+              <Package className="w-4 h-4" />
+              Modules
             </TabsTrigger>
             <TabsTrigger value="configuration" className="gap-2">
               <FileCode className="w-4 h-4" />
@@ -476,6 +603,114 @@ const Nginx = () => {
 }`}
                       </pre>
                     </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Modules Tab */}
+          <TabsContent value="modules" className="space-y-6">
+            {/* Modules List */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Nginx Modules</CardTitle>
+                <CardDescription>Manage your Nginx modules</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Module Name</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Version</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {modules.map((module) => (
+                      <TableRow key={module.id}>
+                        <TableCell className="font-medium font-mono">{module.name}</TableCell>
+                        <TableCell>{module.description}</TableCell>
+                        <TableCell>{module.version}</TableCell>
+                        <TableCell>
+                          <div className={cn(
+                            "px-2 py-1 rounded-full text-xs font-medium inline-block",
+                            module.status === "active" 
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
+                          )}>
+                            {module.status === "active" ? "Enabled" : "Disabled"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => toggleModuleStatus(module.id)}
+                              title={module.status === "active" ? "Disable" : "Enable"}
+                            >
+                              {module.status === "active" ? (
+                                <StopCircle className="w-4 h-4 text-red-500" />
+                              ) : (
+                                <PlayCircle className="w-4 h-4 text-green-500" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteModule(module.id, module.name)}
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+            
+            {/* Install New Module */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Install New Module</CardTitle>
+                <CardDescription>Install additional Nginx modules</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="moduleName">Module Name</Label>
+                      <Input 
+                        id="moduleName" 
+                        placeholder="ngx_http_module_name" 
+                        value={newModuleName}
+                        onChange={(e) => setNewModuleName(e.target.value)}
+                        disabled={isInstalling}
+                      />
+                    </div>
+                    
+                    {isInstalling && (
+                      <div className="space-y-2">
+                        <Label>Installation Progress</Label>
+                        <Progress value={installProgress} className="h-2" />
+                        <p className="text-sm text-muted-foreground text-right">{installProgress}%</p>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      className="w-full"
+                      onClick={handleInstallModule}
+                      disabled={isInstalling || !newModuleName}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {isInstalling ? "Installing..." : "Install Module"}
+                    </Button>
                   </div>
                 </div>
               </CardContent>
