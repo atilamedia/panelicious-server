@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Database, RefreshCcw, PlayCircle, StopCircle, 
@@ -50,6 +49,7 @@ import {
 } from "@/components/ui/form";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
+import { CreateDatabaseForm } from "@/components/CreateDatabaseForm";
 
 // Mock MySQL data
 const initialPlugins = [
@@ -215,14 +215,7 @@ const MySQL = () => {
   };
 
   // Handler to create a new database
-  const handleCreateDatabase = () => {
-    const newDatabase = {
-      name: `new_database_${databases.length + 1}`,
-      tables: 0,
-      size: "0 MB",
-      created: new Date().toISOString().split('T')[0]
-    };
-    
+  const handleCreateDatabase = (newDatabase: any) => {
     setDatabases([...databases, newDatabase]);
     
     toast({
@@ -363,10 +356,7 @@ const MySQL = () => {
                     <Table className="w-5 h-5 text-primary" />
                     MySQL Databases
                   </span>
-                  <Button onClick={handleCreateDatabase}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Database
-                  </Button>
+                  <CreateDatabaseForm onDatabaseCreated={handleCreateDatabase} />
                 </CardTitle>
                 <CardDescription>Manage your MySQL databases</CardDescription>
               </CardHeader>
