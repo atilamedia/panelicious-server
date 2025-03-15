@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { 
   File, FileText, FileImage, Folder, FolderOpen, 
   Search, CheckCircle, XCircle, Download, Upload,
-  Trash2, Edit, Copy, Plus, RefreshCw
+  Trash2, Edit, Copy, Plus, RefreshCw, Code, Eye
 } from "lucide-react";
 import {
   Table,
@@ -36,15 +36,80 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { FileEditor } from "@/components/FileEditor";
+
+// Define a FileType interface to make the code more type-safe
+interface FileItem {
+  id: string;
+  name: string;
+  type: string;
+  size: string;
+  modified: string;
+  permissions: string;
+  content?: string;
+}
+
+interface FolderItem {
+  id: string;
+  name: string;
+  type: "folder";
+  items: number;
+  modified: string;
+  permissions: string;
+}
+
+interface FileSystem {
+  files: FileItem[];
+  folders: FolderItem[];
+}
 
 // Mock data for the file system
-const initialFileSystem = {
+const initialFileSystem: FileSystem = {
   files: [
-    { id: "1", name: "index.php", type: "file", size: "2.5 KB", modified: "2023-04-15", permissions: "644" },
-    { id: "2", name: "config.json", type: "file", size: "1.2 KB", modified: "2023-04-14", permissions: "644" },
-    { id: "3", name: "logo.png", type: "image", size: "145 KB", modified: "2023-04-10", permissions: "644" },
-    { id: "4", name: "script.js", type: "file", size: "4.7 KB", modified: "2023-04-09", permissions: "644" },
-    { id: "5", name: "styles.css", type: "file", size: "8.3 KB", modified: "2023-04-08", permissions: "644" },
+    { 
+      id: "1", 
+      name: "index.php", 
+      type: "file", 
+      size: "2.5 KB", 
+      modified: "2023-04-15", 
+      permissions: "644",
+      content: "<?php\n\necho 'Hello World!';\n\n// This is a sample PHP file\n$version = phpversion();\necho \"\\nPHP Version: {$version}\";\n"
+    },
+    { 
+      id: "2", 
+      name: "config.json", 
+      type: "file", 
+      size: "1.2 KB", 
+      modified: "2023-04-14", 
+      permissions: "644",
+      content: "{\n  \"appName\": \"My Application\",\n  \"version\": \"1.0.0\",\n  \"debug\": true,\n  \"database\": {\n    \"host\": \"localhost\",\n    \"user\": \"admin\",\n    \"password\": \"password\",\n    \"name\": \"myapp_db\"\n  }\n}"
+    },
+    { 
+      id: "3", 
+      name: "logo.png", 
+      type: "image", 
+      size: "145 KB", 
+      modified: "2023-04-10", 
+      permissions: "644" 
+    },
+    { 
+      id: "4", 
+      name: "script.js", 
+      type: "file", 
+      size: "4.7 KB", 
+      modified: "2023-04-09", 
+      permissions: "644",
+      content: "// Main application script\n\nconst app = {\n  init: function() {\n    console.log('Application initialized');\n    this.bindEvents();\n  },\n\n  bindEvents: function() {\n    document.addEventListener('DOMContentLoaded', () => {\n      console.log('DOM fully loaded');\n    });\n  }\n};\n\napp.init();"
+    },
+    { 
+      id: "5", 
+      name: "styles.css", 
+      type: "file", 
+      size: "8.3 KB", 
+      modified: "2023-04-08", 
+      permissions: "644",
+      content: "/* Main stylesheet */\n\nbody {\n  font-family: 'Arial', sans-serif;\n  line-height: 1.6;\n  color: #333;\n  margin: 0;\n  padding: 0;\n}\n\nheader {\n  background-color: #4a5568;\n  color: white;\n  padding: 1rem;\n}\n\n.container {\n  max-width: 1200px;\n  margin: 0 auto;\n  padding: 1rem;\n}\n"
+    },
   ],
   folders: [
     { id: "f1", name: "uploads", type: "folder", items: 12, modified: "2023-04-15", permissions: "755" },
@@ -66,6 +131,13 @@ const getFileIcon = (type: string) => {
   }
 };
 
+// Check if a file is editable based on its type
+const isFileEditable = (fileName: string): boolean => {
+  const textFileExtensions = ['.txt', '.html', '.css', '.js', '.json', '.php', '.md', '.xml', '.svg', '.log', '.conf', '.ini', '.sh', '.bat', '.py', '.rb', '.java', '.c', '.cpp', '.h', '.tsx', '.jsx', '.ts'];
+  const extension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+  return textFileExtensions.includes(extension);
+};
+
 const FileManager = () => {
   const [currentPath, setCurrentPath] = useState("/home/user");
   const [fileSystem, setFileSystem] = useState(initialFileSystem);
@@ -75,6 +147,8 @@ const FileManager = () => {
   const [newFolderName, setNewFolderName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [editingFile, setEditingFile] = useState<FileItem | null>(null);
+  const [activeTab, setActiveTab] = useState("browser");
   const { toast } = useToast();
 
   // Filter items based on search query
@@ -123,7 +197,7 @@ const FileManager = () => {
     const newFolder = {
       id: `f${Date.now()}`,
       name: newFolderName,
-      type: "folder",
+      type: "folder" as const,
       items: 0,
       modified: new Date().toISOString().split('T')[0],
       permissions: "755"
@@ -176,7 +250,8 @@ const FileManager = () => {
         type: "file",
         size: `${Math.floor(Math.random() * 1000)} KB`,
         modified: new Date().toISOString().split('T')[0],
-        permissions: "644"
+        permissions: "644",
+        content: "This is a sample content for the uploaded file.\nYou can edit this text."
       };
       
       setFileSystem(prev => ({
@@ -191,6 +266,34 @@ const FileManager = () => {
         description: `${newFile.name} has been uploaded successfully.`,
       });
     }, 1500);
+  };
+
+  // Open file for editing
+  const openFileEditor = (file: FileItem) => {
+    if (isFileEditable(file.name)) {
+      setEditingFile(file);
+      setActiveTab("editor");
+    } else {
+      toast({
+        title: "Cannot Edit File",
+        description: "This file type is not supported for editing.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Save edited file content
+  const saveFileContent = (content: string) => {
+    if (!editingFile) return;
+    
+    setFileSystem(prev => ({
+      ...prev,
+      files: prev.files.map(file => 
+        file.id === editingFile.id 
+          ? { ...file, content, modified: new Date().toISOString().split('T')[0] }
+          : file
+      )
+    }));
   };
 
   // Navigate to folder (mock behavior for demonstration)
@@ -214,7 +317,7 @@ const FileManager = () => {
     setCurrentPath(newPath);
   };
 
-  // Path breadcrumb
+  // Render path breadcrumb
   const PathBreadcrumb = () => {
     const pathParts = currentPath.split('/').filter(Boolean);
     
@@ -276,10 +379,11 @@ const FileManager = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="browser" className="w-full">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full md:w-[400px] grid-cols-3">
             <TabsTrigger value="browser">File Browser</TabsTrigger>
             <TabsTrigger value="upload">Upload</TabsTrigger>
+            <TabsTrigger value="editor" disabled={!editingFile}>Editor</TabsTrigger>
           </TabsList>
 
           <TabsContent value="browser" className="space-y-4">
@@ -405,6 +509,7 @@ const FileManager = () => {
                           selectedItems.includes(file.id) && "bg-muted"
                         )}
                         onClick={() => toggleSelectItem(file.id)}
+                        onDoubleClick={() => isFileEditable(file.name) && openFileEditor(file)}
                       >
                         <TableCell>
                           {selectedItems.includes(file.id) ? 
@@ -425,8 +530,14 @@ const FileManager = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              {isFileEditable(file.name) && (
+                                <DropdownMenuItem onClick={() => openFileEditor(file)}>
+                                  <Code className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem>
-                                <FileText className="h-4 w-4 mr-2" />
+                                <Eye className="h-4 w-4 mr-2" />
                                 View
                               </DropdownMenuItem>
                               <DropdownMenuItem>
@@ -435,7 +546,7 @@ const FileManager = () => {
                               </DropdownMenuItem>
                               <DropdownMenuItem>
                                 <Edit className="h-4 w-4 mr-2" />
-                                Edit
+                                Rename
                               </DropdownMenuItem>
                               <DropdownMenuItem>
                                 <Copy className="h-4 w-4 mr-2" />
@@ -489,14 +600,17 @@ const FileManager = () => {
                         selectedItems.includes(file.id) && "border-primary bg-primary/5"
                       )}
                       onClick={() => toggleSelectItem(file.id)}
+                      onDoubleClick={() => isFileEditable(file.name) && openFileEditor(file)}
                     >
                       <div className="relative">
-                        {getFileIcon(file.type)}
-                        <div className="absolute -top-1 -right-1">
-                          {selectedItems.includes(file.id) && (
-                            <CheckCircle className="h-5 w-5 text-primary bg-background rounded-full" />
-                          )}
-                        </div>
+                        {file.type === "file" && isFileEditable(file.name) ? (
+                          <FileText className="h-12 w-12 text-gray-500" />
+                        ) : (
+                          getFileIcon(file.type)
+                        )}
+                        {selectedItems.includes(file.id) && (
+                          <CheckCircle className="absolute -top-1 -right-1 h-5 w-5 text-primary bg-background rounded-full" />
+                        )}
                       </div>
                       <span className="text-sm font-medium truncate max-w-full text-center">
                         {file.name}
@@ -504,6 +618,20 @@ const FileManager = () => {
                       <span className="text-xs text-muted-foreground">
                         {file.size}
                       </span>
+                      {isFileEditable(file.name) && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="p-1 h-auto" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openFileEditor(file);
+                          }}
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          <span className="text-xs">Edit</span>
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -564,6 +692,30 @@ const FileManager = () => {
                 </li>
               </ul>
             </div>
+          </TabsContent>
+
+          <TabsContent value="editor" className="space-y-4">
+            {editingFile ? (
+              <div className="border rounded-md overflow-hidden h-[calc(100vh-300px)]">
+                <FileEditor
+                  fileName={editingFile.name}
+                  fileContent={editingFile.content || ""}
+                  onSave={saveFileContent}
+                  onClose={() => {
+                    setEditingFile(null);
+                    setActiveTab("browser");
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-2 text-lg font-semibold">No file selected</h3>
+                <p className="text-sm text-muted-foreground">
+                  Select a file from the browser to edit its contents
+                </p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
         
