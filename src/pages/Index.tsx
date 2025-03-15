@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Server, Database, Code2, ArrowRight, PlusCircle, 
   Settings, FileCode, RefreshCcw, Clock, Activity, 
-  HardDrive, Cpu, Memory 
+  HardDrive, Cpu, CircuitBoard
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 
-// Mock data for CPU usage over time
 const cpuData = [
   { time: "00:00", usage: 25 },
   { time: "02:00", usage: 30 },
@@ -28,7 +27,6 @@ const cpuData = [
   { time: "22:00", usage: 20 },
 ];
 
-// Service type for our cards
 interface Service {
   name: string;
   status: "active" | "inactive" | "warning";
@@ -44,21 +42,19 @@ const Index = () => {
   const [diskUsage, setDiskUsage] = useState(58);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Animate stats periodically
   useEffect(() => {
     const interval = setInterval(() => {
       setCpuUsage(prevUsage => {
-        const change = Math.random() * 10 - 5; // -5 to +5
-        return Math.min(Math.max(prevUsage + change, 5), 95); // Keep between 5-95%
+        const change = Math.random() * 10 - 5;
+        return Math.min(Math.max(prevUsage + change, 5), 95);
       });
       
       setMemoryUsage(prevUsage => {
-        const change = Math.random() * 8 - 4; // -4 to +4
-        return Math.min(Math.max(prevUsage + change, 10), 90); // Keep between 10-90%
+        const change = Math.random() * 8 - 4;
+        return Math.min(Math.max(prevUsage + change, 10), 90);
       });
     }, 5000);
 
-    // Update time every second
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -69,7 +65,6 @@ const Index = () => {
     };
   }, []);
 
-  // Services data
   const services: Service[] = [
     {
       name: "Nginx",
@@ -97,7 +92,6 @@ const Index = () => {
     }
   ];
 
-  // Recent activities (mock data)
   const recentActivities = [
     { id: 1, activity: "Nginx configuration updated", time: "10 minutes ago" },
     { id: 2, activity: "MySQL backup completed", time: "45 minutes ago" },
@@ -105,7 +99,6 @@ const Index = () => {
     { id: 4, activity: "System update completed", time: "5 hours ago" },
   ];
 
-  // Format the current time
   const formattedTime = currentTime.toLocaleTimeString();
   const formattedDate = currentTime.toLocaleDateString(undefined, {
     weekday: 'long',
@@ -116,7 +109,6 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Header Section */}
       <div className="mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -136,7 +128,6 @@ const Index = () => {
         </motion.div>
       </div>
 
-      {/* Services Overview */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -188,9 +179,7 @@ const Index = () => {
         ))}
       </motion.div>
 
-      {/* System Resources and Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* System Resources */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -206,7 +195,6 @@ const Index = () => {
               <CardDescription>Current utilization of system resources</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* CPU Usage */}
               <div>
                 <div className="flex justify-between mb-2">
                   <div className="flex items-center">
@@ -218,11 +206,10 @@ const Index = () => {
                 <Progress value={cpuUsage} className="h-2" indicatorClassName="bg-blue-500" />
               </div>
               
-              {/* Memory Usage */}
               <div>
                 <div className="flex justify-between mb-2">
                   <div className="flex items-center">
-                    <Memory className="w-4 h-4 mr-2 text-purple-500" />
+                    <CircuitBoard className="w-4 h-4 mr-2 text-purple-500" />
                     <span className="font-medium">Memory Usage</span>
                   </div>
                   <span className="text-sm font-medium">{memoryUsage.toFixed(1)}%</span>
@@ -230,7 +217,6 @@ const Index = () => {
                 <Progress value={memoryUsage} className="h-2" indicatorClassName="bg-purple-500" />
               </div>
               
-              {/* Disk Usage */}
               <div>
                 <div className="flex justify-between mb-2">
                   <div className="flex items-center">
@@ -242,7 +228,6 @@ const Index = () => {
                 <Progress value={diskUsage} className="h-2" indicatorClassName="bg-emerald-500" />
               </div>
               
-              {/* CPU Load Chart */}
               <div className="pt-4">
                 <h4 className="text-sm font-medium mb-4">CPU Load (24 hours)</h4>
                 <div className="h-[200px] w-full">
@@ -273,7 +258,6 @@ const Index = () => {
           </Card>
         </motion.div>
 
-        {/* Recent Activity */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -316,7 +300,6 @@ const Index = () => {
         </motion.div>
       </div>
 
-      {/* Quick Access */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
