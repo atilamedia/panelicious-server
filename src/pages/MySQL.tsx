@@ -598,7 +598,7 @@ const MySQL = () => {
                           <SelectValue placeholder="Select database (optional)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {databases.map((db) => (
                             <SelectItem key={db.name} value={db.name}>
                               {db.name}
