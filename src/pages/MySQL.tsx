@@ -47,11 +47,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { CreateDatabaseForm } from "@/components/CreateDatabaseForm";
 
-// Mock MySQL data
 const initialPlugins = [
   { name: "mysql_native_password", status: true, description: "Native MySQL authentication" },
   { name: "validate_password", status: true, description: "Password validation plugin" },
@@ -67,7 +73,6 @@ const initialPlugins = [
   { name: "simple_parser", status: true, description: "Full-text search parser" },
 ];
 
-// Mock MySQL databases
 const initialDatabases = [
   { name: "wordpress", tables: 12, size: "24.5 MB", created: "2023-06-15" },
   { name: "ecommerce", tables: 23, size: "56.2 MB", created: "2023-07-22" },
@@ -75,7 +80,6 @@ const initialDatabases = [
   { name: "test", tables: 3, size: "0.8 MB", created: "2023-08-05" },
 ];
 
-// Mock MySQL users
 const initialUsers = [
   { username: "admin", host: "localhost", privileges: "ALL PRIVILEGES", authentication: "Native" },
   { username: "wordpress", host: "%", privileges: "SELECT, INSERT, UPDATE", authentication: "Native" },
@@ -83,7 +87,6 @@ const initialUsers = [
   { username: "read_only", host: "192.168.1.%", privileges: "SELECT", authentication: "Native" },
 ];
 
-// Mock MySQL configuration
 const initialMySQLConfig = `[mysqld]
 # Basic Settings
 user                    = mysql
@@ -140,9 +143,15 @@ const MySQL = () => {
   const [serviceStatus, setServiceStatus] = useState<"active" | "inactive">("active");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedDb, setExpandedDb] = useState<string | null>(null);
+  const [newUserForm, setNewUserForm] = useState({
+    username: "",
+    host: "localhost",
+    password: "",
+    privileges: "SELECT",
+    database: ""
+  });
   const { toast } = useToast();
 
-  // Toggle plugin status
   const togglePlugin = (pluginName: string) => {
     setPlugins(plugins.map(plugin => 
       plugin.name === pluginName 
@@ -158,7 +167,6 @@ const MySQL = () => {
     });
   };
 
-  // Toggle database expansion
   const toggleDbExpansion = (dbName: string) => {
     if (expandedDb === dbName) {
       setExpandedDb(null);
@@ -167,7 +175,6 @@ const MySQL = () => {
     }
   };
 
-  // Handler to save MySQL configuration
   const handleSaveConfig = () => {
     toast({
       title: "Configuration Saved",
@@ -175,14 +182,12 @@ const MySQL = () => {
     });
   };
 
-  // Handler to restart MySQL
   const handleRestartMySQL = () => {
     toast({
       title: "Restarting MySQL",
       description: "MySQL service is being restarted..."
     });
     
-    // Simulate service restart
     setTimeout(() => {
       toast({
         title: "MySQL Restarted",
@@ -191,7 +196,6 @@ const MySQL = () => {
     }, 2000);
   };
 
-  // Handler to toggle MySQL service status
   const toggleServiceStatus = () => {
     const newStatus = serviceStatus === "active" ? "inactive" : "active";
     
@@ -202,7 +206,6 @@ const MySQL = () => {
         : "MySQL service is being started..."
     });
     
-    // Simulate status change
     setTimeout(() => {
       setServiceStatus(newStatus);
       toast({
@@ -214,7 +217,6 @@ const MySQL = () => {
     }, 1500);
   };
 
-  // Handler to create a new database
   const handleCreateDatabase = (newDatabase: any) => {
     setDatabases([...databases, newDatabase]);
     
@@ -224,24 +226,47 @@ const MySQL = () => {
     });
   };
 
-  // Handler to create a new user
   const handleCreateUser = () => {
+    if (!newUserForm.username) {
+      toast({
+        title: "Error",
+        description: "Username is required.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newUser = {
-      username: `user_${users.length + 1}`,
-      host: "localhost",
-      privileges: "SELECT",
-      authentication: "Native"
+      username: newUserForm.username,
+      host: newUserForm.host || "localhost",
+      privileges: newUserForm.privileges,
+      authentication: "Native",
+      database: newUserForm.database || "None"
     };
     
     setUsers([...users, newUser]);
     
+    setNewUserForm({
+      username: "",
+      host: "localhost",
+      password: "",
+      privileges: "SELECT",
+      database: ""
+    });
+    
     toast({
       title: "User Created",
-      description: `New user ${newUser.username} has been created.`
+      description: `New user ${newUser.username} has been created${newUser.database ? ` and assigned to database ${newUser.database}` : ""}.`
     });
   };
 
-  // Filter plugins based on search query
+  const handleNewUserFormChange = (field: string, value: string) => {
+    setNewUserForm({
+      ...newUserForm,
+      [field]: value
+    });
+  };
+
   const filteredPlugins = plugins.filter(plugin => 
     plugin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     plugin.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -249,7 +274,6 @@ const MySQL = () => {
 
   return (
     <Layout>
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -297,7 +321,6 @@ const MySQL = () => {
           </div>
         </div>
         
-        {/* Status Indicator */}
         <div className="mt-6 glass-panel p-4 rounded-lg flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={cn(
@@ -317,7 +340,6 @@ const MySQL = () => {
         </div>
       </motion.div>
 
-      {/* Main Content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -347,7 +369,6 @@ const MySQL = () => {
             </TabsTrigger>
           </TabsList>
           
-          {/* Databases Tab */}
           <TabsContent value="databases" className="space-y-6">
             <Card>
               <CardHeader>
@@ -436,7 +457,6 @@ const MySQL = () => {
             </Card>
           </TabsContent>
           
-          {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
             <Card>
               <CardHeader>
@@ -445,9 +465,22 @@ const MySQL = () => {
                     <Users className="w-5 h-5 text-primary" />
                     MySQL Users
                   </span>
-                  <Button onClick={handleCreateUser}>
+                  <Button onClick={() => {
+                    const newUser = {
+                      username: `user_${users.length + 1}`,
+                      host: "localhost",
+                      privileges: "SELECT",
+                      authentication: "Native",
+                      database: "None"
+                    };
+                    setUsers([...users, newUser]);
+                    toast({
+                      title: "User Created",
+                      description: `Quick new user ${newUser.username} has been created.`
+                    });
+                  }}>
                     <Plus className="w-4 h-4 mr-2" />
-                    New User
+                    Quick Add
                   </Button>
                 </CardTitle>
                 <CardDescription>Manage MySQL users and permissions</CardDescription>
@@ -460,12 +493,13 @@ const MySQL = () => {
                       <TableHead>Host</TableHead>
                       <TableHead>Privileges</TableHead>
                       <TableHead>Authentication</TableHead>
+                      <TableHead>Database</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={`${user.username}-${user.host}`}>
+                    {users.map((user, index) => (
+                      <TableRow key={`${user.username}-${user.host}-${index}`}>
                         <TableCell className="font-medium">
                           {user.username}
                         </TableCell>
@@ -490,6 +524,9 @@ const MySQL = () => {
                             )}
                           </div>
                         </TableCell>
+                        <TableCell>
+                          {user.database || "None"}
+                        </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button variant="outline" size="sm">
@@ -508,30 +545,74 @@ const MySQL = () => {
                 </UITable>
                 
                 <div className="mt-6 border rounded-md p-4 bg-muted/20">
-                  <h3 className="text-sm font-medium mb-2">Quick User Creation</h3>
+                  <h3 className="text-sm font-medium mb-2">Create User with Database Access</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm text-muted-foreground mb-1 block">Username</label>
-                      <Input placeholder="Enter username" />
+                      <Input 
+                        placeholder="Enter username" 
+                        value={newUserForm.username}
+                        onChange={(e) => handleNewUserFormChange("username", e.target.value)}
+                      />
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground mb-1 block">Host</label>
-                      <Input placeholder="localhost" />
+                      <Input 
+                        placeholder="localhost" 
+                        value={newUserForm.host}
+                        onChange={(e) => handleNewUserFormChange("host", e.target.value)}
+                      />
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground mb-1 block">Password</label>
-                      <Input type="password" placeholder="Enter password" />
+                      <Input 
+                        type="password" 
+                        placeholder="Enter password" 
+                        value={newUserForm.password}
+                        onChange={(e) => handleNewUserFormChange("password", e.target.value)}
+                      />
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground mb-1 block">Grant</label>
-                      <select className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background">
-                        <option>SELECT</option>
-                        <option>SELECT, INSERT, UPDATE</option>
-                        <option>ALL PRIVILEGES</option>
-                      </select>
+                      <Select 
+                        value={newUserForm.privileges}
+                        onValueChange={(value) => handleNewUserFormChange("privileges", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select privileges" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SELECT">SELECT</SelectItem>
+                          <SelectItem value="SELECT, INSERT, UPDATE">SELECT, INSERT, UPDATE</SelectItem>
+                          <SelectItem value="ALL PRIVILEGES">ALL PRIVILEGES</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-sm text-muted-foreground mb-1 block">Assign Database</label>
+                      <Select 
+                        value={newUserForm.database}
+                        onValueChange={(value) => handleNewUserFormChange("database", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select database (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {databases.map((db) => (
+                            <SelectItem key={db.name} value={db.name}>
+                              {db.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Assign this user to a specific database for access control
+                      </p>
                     </div>
                   </div>
-                  <Button className="mt-4">
+                  <Button className="mt-4" onClick={handleCreateUser}>
+                    <Plus className="w-4 h-4 mr-2" />
                     Create User
                   </Button>
                 </div>
@@ -539,7 +620,6 @@ const MySQL = () => {
             </Card>
           </TabsContent>
           
-          {/* Plugins Tab */}
           <TabsContent value="plugins" className="space-y-6">
             <Card>
               <CardHeader>
@@ -613,7 +693,6 @@ const MySQL = () => {
             </Card>
           </TabsContent>
           
-          {/* Configuration Tab */}
           <TabsContent value="config" className="space-y-6">
             <Card>
               <CardHeader>
@@ -643,7 +722,6 @@ const MySQL = () => {
             </Card>
           </TabsContent>
           
-          {/* Status Tab */}
           <TabsContent value="status" className="space-y-6">
             <Card>
               <CardHeader>
