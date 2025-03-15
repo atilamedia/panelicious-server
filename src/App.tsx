@@ -10,6 +10,7 @@ import Nginx from "./pages/Nginx";
 import PHP from "./pages/PHP";
 import MySQL from "./pages/MySQL";
 import Statistics from "./pages/Statistics";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/php" element={<PHP />} />
           <Route path="/mysql" element={<MySQL />} />
           <Route path="/stats" element={<Statistics />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
