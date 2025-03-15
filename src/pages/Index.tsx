@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Server, Database, Code2, ArrowRight, PlusCircle, 
   Settings, FileCode, RefreshCcw, Clock, Activity, 
-  HardDrive, Cpu, Chip
+  HardDrive, Cpu, Memory 
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -222,7 +222,7 @@ const Index = () => {
               <div>
                 <div className="flex justify-between mb-2">
                   <div className="flex items-center">
-                    <Chip className="w-4 h-4 mr-2 text-purple-500" />
+                    <Memory className="w-4 h-4 mr-2 text-purple-500" />
                     <span className="font-medium">Memory Usage</span>
                   </div>
                   <span className="text-sm font-medium">{memoryUsage.toFixed(1)}%</span>
