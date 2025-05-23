@@ -11,6 +11,8 @@ import { Progress } from "@/components/ui/progress";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const cpuData = [
   { time: "00:00", usage: 25 },
@@ -41,6 +43,8 @@ const Index = () => {
   const [memoryUsage, setMemoryUsage] = useState(42);
   const [diskUsage, setDiskUsage] = useState(58);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -106,6 +110,35 @@ const Index = () => {
     month: 'long',
     day: 'numeric'
   });
+
+  const handleRestartAll = () => {
+    toast({
+      title: "Restarting all services",
+      description: "All services are being restarted...",
+    });
+    
+    // Simulate service restart
+    setTimeout(() => {
+      toast({
+        title: "Services Restarted",
+        description: "All services have been restarted successfully.",
+      });
+    }, 2000);
+  };
+
+  const handleAddSite = () => {
+    toast({
+      title: "Add Site Feature",
+      description: "The Add Site feature will be available soon.",
+    });
+  };
+
+  const handleViewLogs = () => {
+    toast({
+      title: "Logs Feature",
+      description: "The Logs feature will be available soon.",
+    });
+  };
 
   return (
     <Layout>
@@ -308,27 +341,51 @@ const Index = () => {
       >
         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          <Button variant="outline" className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition">
+          <Button 
+            variant="outline" 
+            className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition"
+            onClick={() => navigate('/nginx')}
+          >
             <FileCode className="w-6 h-6 text-primary" />
             <span>Site Config</span>
           </Button>
-          <Button variant="outline" className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition">
+          <Button 
+            variant="outline" 
+            className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition"
+            onClick={() => navigate('/mysql')}
+          >
             <Database className="w-6 h-6 text-primary" />
             <span>Databases</span>
           </Button>
-          <Button variant="outline" className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition">
+          <Button 
+            variant="outline" 
+            className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition"
+            onClick={handleRestartAll}
+          >
             <RefreshCcw className="w-6 h-6 text-primary" />
             <span>Restart All</span>
           </Button>
-          <Button variant="outline" className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition">
+          <Button 
+            variant="outline" 
+            className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition"
+            onClick={() => navigate('/settings')}
+          >
             <Settings className="w-6 h-6 text-primary" />
             <span>Settings</span>
           </Button>
-          <Button variant="outline" className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition">
+          <Button 
+            variant="outline" 
+            className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition"
+            onClick={handleAddSite}
+          >
             <PlusCircle className="w-6 h-6 text-primary" />
             <span>Add Site</span>
           </Button>
-          <Button variant="outline" className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition">
+          <Button 
+            variant="outline" 
+            className="h-auto flex-col py-6 gap-2 hover:border-primary/50 hover:bg-primary/5 smooth-transition"
+            onClick={handleViewLogs}
+          >
             <Activity className="w-6 h-6 text-primary" />
             <span>Logs</span>
           </Button>
