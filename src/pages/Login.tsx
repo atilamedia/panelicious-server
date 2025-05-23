@@ -60,7 +60,7 @@ const Login = () => {
           <div className="mx-auto w-12 h-12 rounded-md bg-primary flex items-center justify-center mb-4">
             <Server className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold">HostPanel Login</h1>
+          <h1 className="text-2xl font-bold">SLEMP Panel Login</h1>
           <p className="text-muted-foreground mt-2">
             Sign in to your admin account
           </p>
