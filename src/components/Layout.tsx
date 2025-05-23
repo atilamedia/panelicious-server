@@ -89,7 +89,7 @@ export const Layout = ({ children }: LayoutProps) => {
             <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
               <Server className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-xl font-semibold">HostPanel</h1>
+            <h1 className="text-xl font-semibold">SLEMP Panel</h1>
           </Link>
         </div>
 
