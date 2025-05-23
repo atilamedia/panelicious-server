@@ -322,9 +322,11 @@ const Index = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button variant="ghost" className="w-full justify-between">
-                View All Activities
-                <ArrowRight className="w-4 h-4 ml-2" />
+              <Button variant="ghost" className="w-full justify-between" asChild>
+                <Link to="/activities">
+                  View All Activities
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
               </Button>
             </CardFooter>
           </Card>

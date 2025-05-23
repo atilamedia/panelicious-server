@@ -14,6 +14,7 @@ import MySQL from "./pages/MySQL";
 import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
 import FileManager from "./pages/FileManager";
+import Activities from "./pages/Activities";
 import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/stats" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/files" element={<ProtectedRoute><FileManager /></ProtectedRoute>} />
+            <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
