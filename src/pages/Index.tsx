@@ -15,6 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { AddSiteModal } from "@/components/AddSiteModal";
 import { LogsModal } from "@/components/LogsModal";
+import { getSystemInfo, ServiceInfo } from "@/utils/systemInfo";
 
 const cpuData = [
   { time: "00:00", usage: 25 },
@@ -38,6 +39,7 @@ interface Service {
   icon: React.ReactNode;
   route: string;
   uptime: string;
+  pid?: number;
 }
 
 const Index = () => {
@@ -45,13 +47,48 @@ const Index = () => {
   const [memoryUsage, setMemoryUsage] = useState(42);
   const [diskUsage, setDiskUsage] = useState(58);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [services, setServices] = useState<ServiceInfo[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAddSiteModalOpen, setIsAddSiteModalOpen] = useState(false);
   const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
 
+  // Function to fetch system information
+  const fetchSystemInfo = async () => {
+    try {
+      setLoading(true);
+      const systemInfo = await getSystemInfo();
+      setServices(systemInfo.services);
+      setCpuUsage(systemInfo.resources.cpu);
+      setMemoryUsage(systemInfo.resources.memory);
+      setDiskUsage(systemInfo.resources.disk);
+    } catch (error) {
+      console.error("Failed to fetch system info:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch system information",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Fetch initial system info
+    fetchSystemInfo();
+
+    // Update system info every 30 seconds
+    const systemInfoInterval = setInterval(fetchSystemInfo, 30000);
+
+    // Update time every second
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    // Simulate resource usage changes every 5 seconds
+    const resourceInterval = setInterval(() => {
       setCpuUsage(prevUsage => {
         const change = Math.random() * 10 - 5;
         return Math.min(Math.max(prevUsage + change, 5), 95);
@@ -62,43 +99,13 @@ const Index = () => {
         return Math.min(Math.max(prevUsage + change, 10), 90);
       });
     }, 5000);
-
-    const timeInterval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
     
     return () => {
-      clearInterval(interval);
+      clearInterval(systemInfoInterval);
       clearInterval(timeInterval);
+      clearInterval(resourceInterval);
     };
   }, []);
-
-  const services: Service[] = [
-    {
-      name: "Nginx",
-      status: "active",
-      version: "1.22.1",
-      icon: <Server className="w-5 h-5" />,
-      route: "/nginx",
-      uptime: "15d 7h 23m"
-    },
-    {
-      name: "PHP-FPM",
-      status: "active",
-      version: "8.2.7",
-      icon: <Code2 className="w-5 h-5" />,
-      route: "/php",
-      uptime: "15d 7h 22m"
-    },
-    {
-      name: "MySQL",
-      status: "active",
-      version: "8.0.33",
-      icon: <Database className="w-5 h-5" />,
-      route: "/mysql",
-      uptime: "15d 7h 23m"
-    }
-  ];
 
   const recentActivities = [
     { id: 1, activity: "Nginx configuration updated", time: "10 minutes ago" },
@@ -121,13 +128,22 @@ const Index = () => {
       description: "All services are being restarted...",
     });
     
-    // Simulate service restart
+    // Simulate service restart and refresh system info
     setTimeout(() => {
+      fetchSystemInfo();
       toast({
         title: "Services Restarted",
         description: "All services have been restarted successfully.",
       });
     }, 2000);
+  };
+
+  const handleRefreshStatus = () => {
+    toast({
+      title: "Refreshing Status",
+      description: "Fetching latest system information...",
+    });
+    fetchSystemInfo();
   };
 
   const handleAddSite = () => {
@@ -165,49 +181,79 @@ const Index = () => {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
       >
-        {services.map((service, index) => (
-          <motion.div
-            key={service.name}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-          >
-            <Card className="overflow-hidden smooth-transition hover:shadow-md hover:border-primary/50">
+        {loading ? (
+          // Loading skeleton
+          Array.from({ length: 3 }).map((_, index) => (
+            <Card key={index} className="overflow-hidden">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
-                  <div className="bg-primary/10 p-2 rounded-md">
-                    {service.icon}
-                  </div>
-                  <div className={cn(
-                    "px-2 py-1 rounded-full text-xs font-medium",
-                    service.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : 
-                    service.status === "warning" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" : 
-                    "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                  )}>
-                    {service.status === "active" ? "Running" : 
-                     service.status === "warning" ? "Warning" : "Stopped"}
-                  </div>
+                  <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-md w-10 h-10 animate-pulse"></div>
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-full w-16 h-6 animate-pulse"></div>
                 </div>
-                <CardTitle className="mt-2">{service.name}</CardTitle>
-                <CardDescription>Version: {service.version}</CardDescription>
+                <div className="bg-gray-200 dark:bg-gray-700 rounded w-20 h-6 mt-2 animate-pulse"></div>
+                <div className="bg-gray-200 dark:bg-gray-700 rounded w-24 h-4 animate-pulse"></div>
               </CardHeader>
               <CardContent className="pb-2">
-                <div className="flex items-center space-x-2 text-sm">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span>Uptime: {service.uptime}</span>
-                </div>
+                <div className="bg-gray-200 dark:bg-gray-700 rounded w-32 h-4 animate-pulse"></div>
               </CardContent>
               <CardFooter>
-                <Button variant="ghost" className="w-full justify-between" asChild>
-                  <a href={service.route}>
-                    Manage
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </a>
-                </Button>
+                <div className="bg-gray-200 dark:bg-gray-700 rounded w-full h-10 animate-pulse"></div>
               </CardFooter>
             </Card>
-          </motion.div>
-        ))}
+          ))
+        ) : (
+          services.map((service, index) => (
+            <motion.div
+              key={service.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+            >
+              <Card className="overflow-hidden smooth-transition hover:shadow-md hover:border-primary/50">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <div className="bg-primary/10 p-2 rounded-md">
+                      {service.name === "Nginx" && <Server className="w-5 h-5" />}
+                      {service.name === "PHP-FPM" && <Code2 className="w-5 h-5" />}
+                      {service.name === "MySQL" && <Database className="w-5 h-5" />}
+                    </div>
+                    <div className={cn(
+                      "px-2 py-1 rounded-full text-xs font-medium",
+                      service.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : 
+                      service.status === "warning" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" : 
+                      "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                    )}>
+                      {service.status === "active" ? "Running" : 
+                       service.status === "warning" ? "Warning" : "Stopped"}
+                    </div>
+                  </div>
+                  <CardTitle className="mt-2">{service.name}</CardTitle>
+                  <CardDescription>Version: {service.version}</CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span>Uptime: {service.uptime}</span>
+                  </div>
+                  {service.pid && (
+                    <div className="flex items-center space-x-2 text-sm mt-1">
+                      <Activity className="w-4 h-4 text-muted-foreground" />
+                      <span>PID: {service.pid}</span>
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button variant="ghost" className="w-full justify-between" asChild>
+                    <Link to={`/${service.name.toLowerCase().replace('-fpm', '')}`}>
+                      Manage
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </motion.div>
+          ))
+        )}
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -339,7 +385,18 @@ const Index = () => {
         transition={{ duration: 0.5, delay: 0.7 }}
         className="mt-8"
       >
-        <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Quick Actions</h2>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRefreshStatus}
+            disabled={loading}
+          >
+            <RefreshCcw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+            Refresh Status
+          </Button>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <Button 
             variant="outline" 
