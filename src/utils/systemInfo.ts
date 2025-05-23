@@ -1,6 +1,10 @@
 
 // Utility functions to get real system information
 // Note: In a real environment, these would call actual system APIs
+import { exec as execCallback } from 'child_process';
+import { promisify } from 'util';
+
+const exec = promisify(execCallback);
 
 export interface ServiceInfo {
   name: string;
@@ -58,53 +62,111 @@ export const getSystemInfo = async (): Promise<{
 
 // Individual service info functions
 const getNginxVersion = async (): Promise<string> => {
-  // In production: exec('nginx -v 2>&1 | grep -o "nginx/[0-9.]*"')
-  return "1.22.1";
+  try {
+    // In production, this would actually execute the command
+    // const { stdout } = await exec('nginx -v 2>&1 | grep -o "nginx/[0-9.]*"');
+    // return stdout.trim();
+    
+    // For now, return simulated data
+    return "1.22.1";
+  } catch (error) {
+    console.error("Error getting Nginx version:", error);
+    return "Unknown";
+  }
 };
 
 const getNginxUptime = async (): Promise<string> => {
-  // In production: check systemctl status nginx or parse /proc/uptime
-  const uptimeHours = Math.floor(Math.random() * 168) + 24; // 1-7 days
-  const days = Math.floor(uptimeHours / 24);
-  const hours = uptimeHours % 24;
-  const minutes = Math.floor(Math.random() * 60);
-  return `${days}d ${hours}h ${minutes}m`;
+  try {
+    // In production: check systemctl status nginx or parse /proc/uptime
+    // const { stdout } = await exec('systemctl show nginx --property=ActiveState,SubState,ExecMainStartTimestamp');
+    
+    // For now, return simulated data
+    const uptimeHours = Math.floor(Math.random() * 168) + 24; // 1-7 days
+    const days = Math.floor(uptimeHours / 24);
+    const hours = uptimeHours % 24;
+    const minutes = Math.floor(Math.random() * 60);
+    return `${days}d ${hours}h ${minutes}m`;
+  } catch (error) {
+    console.error("Error getting Nginx uptime:", error);
+    return "Unknown";
+  }
 };
 
 const getPHPVersion = async (): Promise<string> => {
-  // In production: exec('php -v | head -n 1 | grep -o "PHP [0-9.]*"')
-  return "8.2.7";
+  try {
+    // In production: exec('php -v | head -n 1 | grep -o "PHP [0-9.]*"')
+    // const { stdout } = await exec('php -v | head -n 1 | grep -o "PHP [0-9.]*"');
+    // return stdout.trim();
+    
+    // For now, return simulated data
+    return "8.2.7";
+  } catch (error) {
+    console.error("Error getting PHP version:", error);
+    return "Unknown";
+  }
 };
 
 const getPHPUptime = async (): Promise<string> => {
-  // In production: check PHP-FPM process start time
-  const uptimeHours = Math.floor(Math.random() * 168) + 20;
-  const days = Math.floor(uptimeHours / 24);
-  const hours = uptimeHours % 24;
-  const minutes = Math.floor(Math.random() * 60);
-  return `${days}d ${hours}h ${minutes}m`;
+  try {
+    // In production: check PHP-FPM process start time
+    // const { stdout } = await exec('systemctl show php-fpm --property=ActiveState,SubState,ExecMainStartTimestamp');
+    
+    // For now, return simulated data
+    const uptimeHours = Math.floor(Math.random() * 168) + 20;
+    const days = Math.floor(uptimeHours / 24);
+    const hours = uptimeHours % 24;
+    const minutes = Math.floor(Math.random() * 60);
+    return `${days}d ${hours}h ${minutes}m`;
+  } catch (error) {
+    console.error("Error getting PHP uptime:", error);
+    return "Unknown";
+  }
 };
 
 const getMySQLVersion = async (): Promise<string> => {
-  // In production: exec('mysql --version | grep -o "[0-9.]*"')
-  return "8.0.33";
+  try {
+    // In production: exec('mysql --version | grep -o "[0-9.]*"')
+    // const { stdout } = await exec('mysql --version | grep -o "[0-9.]*"');
+    // return stdout.trim();
+    
+    // For now, return simulated data
+    return "8.0.33";
+  } catch (error) {
+    console.error("Error getting MySQL version:", error);
+    return "Unknown";
+  }
 };
 
 const getMySQLUptime = async (): Promise<string> => {
-  // In production: query MySQL SHOW STATUS LIKE 'Uptime'
-  const uptimeHours = Math.floor(Math.random() * 168) + 22;
-  const days = Math.floor(uptimeHours / 24);
-  const hours = uptimeHours % 24;
-  const minutes = Math.floor(Math.random() * 60);
-  return `${days}d ${hours}h ${minutes}m`;
+  try {
+    // In production: query MySQL SHOW STATUS LIKE 'Uptime'
+    // const { stdout } = await exec('mysql -e "SHOW STATUS LIKE \'Uptime\'" | tail -1 | awk \'{print $2}\'');
+    
+    // For now, return simulated data
+    const uptimeHours = Math.floor(Math.random() * 168) + 22;
+    const days = Math.floor(uptimeHours / 24);
+    const hours = uptimeHours % 24;
+    const minutes = Math.floor(Math.random() * 60);
+    return `${days}d ${hours}h ${minutes}m`;
+  } catch (error) {
+    console.error("Error getting MySQL uptime:", error);
+    return "Unknown";
+  }
 };
 
 export const checkServiceStatus = async (serviceName: string): Promise<"active" | "inactive" | "warning"> => {
-  // In production: exec(`systemctl is-active ${serviceName}`)
-  
-  // Simulate occasional service issues
-  const rand = Math.random();
-  if (rand < 0.05) return "inactive"; // 5% chance inactive
-  if (rand < 0.15) return "warning";  // 10% chance warning
-  return "active"; // 85% chance active
+  try {
+    // In production: exec(`systemctl is-active ${serviceName}`)
+    // const { stdout } = await exec(`systemctl is-active ${serviceName}`);
+    // return stdout.trim() === 'active' ? 'active' : 'inactive';
+    
+    // Simulate occasional service issues
+    const rand = Math.random();
+    if (rand < 0.05) return "inactive"; // 5% chance inactive
+    if (rand < 0.15) return "warning";  // 10% chance warning
+    return "active"; // 85% chance active
+  } catch (error) {
+    console.error(`Error checking status for ${serviceName}:`, error);
+    return "inactive";
+  }
 };
