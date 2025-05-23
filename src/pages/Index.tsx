@@ -13,6 +13,8 @@ import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { AddSiteModal } from "@/components/AddSiteModal";
+import { LogsModal } from "@/components/LogsModal";
 
 const cpuData = [
   { time: "00:00", usage: 25 },
@@ -45,6 +47,8 @@ const Index = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAddSiteModalOpen, setIsAddSiteModalOpen] = useState(false);
+  const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -127,17 +131,11 @@ const Index = () => {
   };
 
   const handleAddSite = () => {
-    toast({
-      title: "Add Site Feature",
-      description: "The Add Site feature will be available soon.",
-    });
+    setIsAddSiteModalOpen(true);
   };
 
   const handleViewLogs = () => {
-    toast({
-      title: "Logs Feature",
-      description: "The Logs feature will be available soon.",
-    });
+    setIsLogsModalOpen(true);
   };
 
   return (
@@ -391,6 +389,16 @@ const Index = () => {
           </Button>
         </div>
       </motion.div>
+
+      <AddSiteModal 
+        open={isAddSiteModalOpen} 
+        onOpenChange={setIsAddSiteModalOpen} 
+      />
+      
+      <LogsModal 
+        open={isLogsModalOpen} 
+        onOpenChange={setIsLogsModalOpen} 
+      />
     </Layout>
   );
 };
