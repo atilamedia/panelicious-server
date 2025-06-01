@@ -132,7 +132,7 @@
 <body>
     <div class="header">
         <h1><i class="fa fa-flag"></i> Font Awesome 4.7.0 - Complete Icon Collection</h1>
-        <p>Click any icon to copy its class name</p>
+        <p>Click any icon to see its name in an alert</p>
         
         <div class="search-container">
             <input type="text" class="search-box" id="searchBox" placeholder="Search icons..." />
@@ -341,7 +341,7 @@
                         <div class="category-title">Search Results</div>
                         <div class="icons-grid">
                             ${filteredIcons.map(icon => `
-                                <div class="icon-item" onclick="copyToClipboard('${icon}')">
+                                <div class="icon-item" onclick="showIconAlert('${icon}')">
                                     <div class="icon-display">
                                         <i class="fa ${icon}"></i>
                                     </div>
@@ -358,7 +358,7 @@
                         <div class="category-title">${category} (${categorizedIcons[category].length})</div>
                         <div class="icons-grid">
                             ${categorizedIcons[category].map(icon => `
-                                <div class="icon-item" onclick="copyToClipboard('${icon}')">
+                                <div class="icon-item" onclick="showIconAlert('${icon}')">
                                     <div class="icon-display">
                                         <i class="fa ${icon}"></i>
                                     </div>
@@ -377,6 +377,10 @@
                 icon.toLowerCase().includes(searchTerm)
             );
             renderIcons();
+        }
+
+        function showIconAlert(iconClass) {
+            alert(`Icon: ${iconClass}\n\nHTML: <i class="fa ${iconClass}"></i>`);
         }
 
         function copyToClipboard(iconClass) {
