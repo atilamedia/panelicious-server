@@ -77,7 +77,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r">
+    <Sidebar className="border-r flex flex-col">
       <SidebarHeader className="p-6">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
@@ -87,7 +87,7 @@ export function AppSidebar() {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="flex-1">
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -105,16 +105,17 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+      </SidebarContent>
 
-        <SidebarSeparator />
-
+      {/* Fixed Bottom Section */}
+      <div className="mt-auto border-t bg-sidebar">
         <SidebarGroup>
           <SidebarGroupLabel>System Services</SidebarGroupLabel>
           <SidebarGroupContent>
-            <div className="space-y-2 px-2">
+            <div className="space-y-3 px-2 py-2">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <div className="status-active"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   {state === "expanded" && <span className="text-sm">Nginx</span>}
                 </div>
                 <Button 
@@ -128,7 +129,7 @@ export function AppSidebar() {
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <div className="status-active"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   {state === "expanded" && <span className="text-sm">PHP-FPM</span>}
                 </div>
                 <Button 
@@ -142,7 +143,7 @@ export function AppSidebar() {
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <div className="status-active"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   {state === "expanded" && <span className="text-sm">MySQL</span>}
                 </div>
                 <Button 
@@ -157,53 +158,55 @@ export function AppSidebar() {
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>
 
-      <SidebarFooter className="p-4 space-y-2">
-        {/* Mode Button */}
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="w-full justify-start" 
-          onClick={toggleTheme}
-        >
-          {theme === "light" ? (
-            <>
-              <Moon className="w-4 h-4" />
-              {state === "expanded" && <span className="ml-2">Dark Mode</span>}
-            </>
-          ) : (
-            <>
-              <Sun className="w-4 h-4" />
-              {state === "expanded" && <span className="ml-2">Light Mode</span>}
-            </>
-          )}
-        </Button>
+        <SidebarSeparator />
 
-        {/* Admin Button */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-full justify-start">
-              <User className="w-4 h-4" />
-              {state === "expanded" && <span className="ml-2">Admin</span>}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem>
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarFooter>
+        <SidebarFooter className="p-4 space-y-2">
+          {/* Mode Button */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full justify-start" 
+            onClick={toggleTheme}
+          >
+            {theme === "light" ? (
+              <>
+                <Moon className="w-4 h-4" />
+                {state === "expanded" && <span className="ml-2">Dark Mode</span>}
+              </>
+            ) : (
+              <>
+                <Sun className="w-4 h-4" />
+                {state === "expanded" && <span className="ml-2">Light Mode</span>}
+              </>
+            )}
+          </Button>
+
+          {/* Admin Button */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-full justify-start">
+                <User className="w-4 h-4" />
+                {state === "expanded" && <span className="ml-2">admin</span>}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem>
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarFooter>
+      </div>
     </Sidebar>
   );
 }
