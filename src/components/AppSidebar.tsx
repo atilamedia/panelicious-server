@@ -161,50 +161,53 @@ export function AppSidebar() {
 
         <SidebarSeparator />
 
-        <SidebarFooter className="p-4 space-y-2">
-          {/* Mode Button */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full justify-start" 
-            onClick={toggleTheme}
-          >
-            {theme === "light" ? (
-              <>
-                <Moon className="w-4 h-4" />
-                {state === "expanded" && <span className="ml-2">Dark Mode</span>}
-              </>
-            ) : (
-              <>
-                <Sun className="w-4 h-4" />
-                {state === "expanded" && <span className="ml-2">Light Mode</span>}
-              </>
-            )}
-          </Button>
+        <SidebarFooter className="p-4">
+          {/* Inline Mode and Admin Buttons */}
+          <div className="flex gap-2">
+            {/* Mode Button */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex-1 justify-start" 
+              onClick={toggleTheme}
+            >
+              {theme === "light" ? (
+                <>
+                  <Moon className="w-4 h-4" />
+                  {state === "expanded" && <span className="ml-2">Dark</span>}
+                </>
+              ) : (
+                <>
+                  <Sun className="w-4 h-4" />
+                  {state === "expanded" && <span className="ml-2">Light</span>}
+                </>
+              )}
+            </Button>
 
-          {/* Admin Button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="w-full justify-start">
-                <User className="w-4 h-4" />
-                {state === "expanded" && <span className="ml-2">admin</span>}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem>
-                <User className="w-4 h-4 mr-2" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            {/* Admin Button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex-1 justify-start">
+                  <User className="w-4 h-4" />
+                  {state === "expanded" && <span className="ml-2">admin</span>}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem>
+                  <User className="w-4 h-4 mr-2" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </SidebarFooter>
       </div>
     </Sidebar>
